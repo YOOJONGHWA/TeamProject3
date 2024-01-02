@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.itwillbs.mappers.commonAreaMapper">
+	
+	<insert id="insertArea">
+		INSERT 
+		INTO COMMON_AREA
+		(
+			AREA
+		) 
+		VALUES
+		(	
+			#{area}
+		)
+	</insert>
+	
+	<select id="getAreaList" resultType="com.itwillbs.domain.CommonAreaDTO">
+		SELECT 
+			   AREA
+  		  FROM COMMON_AREA
+	</select>
+	
+	<delete id="deleteArea">
+		DELETE 
+		  FROM COMMON_AREA
+		 WHERE AREA = #{area}
+	</delete>
+	
+</mapper>

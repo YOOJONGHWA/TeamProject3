@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itwillbs.mappers.photoMapper">
+
+	<insert id="insertPhoto">
+		insert into photo (photo_num
+						 , user_id
+						 , photo_content
+						 , photo_image
+						 , photo_location
+						 , photo_readcount
+						 , photo_date
+						 ) 
+					values (#{photoNum}
+						 , #{userId}
+						 , #{photoContent}
+						 , #{photoImage}
+						 , #{photoLocation}
+						 , #{photoReadcount}
+						 , #{photoDate}
+						 )
+	</insert>
+
+	<select id="getMaxNum" resultType="java.lang.Integer">
+		select max(photo_num)
+		  from photo
+	</select>
+	
+	<select id="getPhotoList" resultType="com.itwillbs.domain.PhotoDTO">
+		select photo_num
+			 , user_id
+			 , photo_content
+			 , photo_image
+ 			 , photo_location
+			 , photo_readcount
+			 , photo_date
+			 , (SELECT count(*) 
+		  		  FROM photo_reply r 
+				 WHERE r.photo_num = p.photo_num) 
+			   AS reply_count
+			 , (SELECT sum(pl_check)
+			 	  FROM photo_like l
+			 	 WHERE l.photo_num = p.photo_num)
+			   AS like_count
+		  from photo p
+		  	<where>
+				<if test="photoLocation != null">
+			    	p.photo_location = #{photoLocation}
+				</if>
+			</where>
+		 order by photo_num desc limit #{startRow}, #{pageSize}
+	</select>
+	
+	<select id="getPhotoCount" resultType="java.lang.Integer">
+		select count(*)
+		from photo
+	</select>
+	
+	<select id="getPhoto" resultType="com.itwillbs.domain.PhotoDTO">
+		select photo_num
+			 , user_id
+			 , photo_content
+			 , photo_image
+			 , photo_location
+			 , photo_readcount
+			 , photo_date
+			 , (SELECT count(*) 
+		  		  FROM photo_reply r 
+				 WHERE r.photo_num = p.photo_num) 
+			   AS reply_count
+			 , (SELECT sum(pl_check)
+			 	  FROM photo_like l
+			 	 WHERE l.photo_num = p.photo_num)
+			   AS like_count
+		  from photo p
+		 where photo_num = #{photoNum}
+	</select>
+
+	<update id="updateReadcount">
+		update photo
+		   set photo_readcount = photo_readcount+1 
+		 where photo_num = #{photoNum}
+	</update>
+
+	<update id="updatePhoto">
+		update photo
+		   set photo_content = #{photoContent}
+			 , photo_image = #{photoImage}
+ 			 , photo_location = #{photoLocation}
+		 where photo_num = #{photoNum}
+	</update>
+	
+	<delete id="deletePhoto">
+		DELETE FROM photo
+		 WHERE photo_num = #{photoNum}
+	</delete>
+
+<!-- 좋아요 -->
+	<select id="getLikedCount">
+		SELECT count(*)
+		  FROM photo_like
+		 WHERE photo_num = #{photoNum}
+	</select>
+
+<!-- 좋아요 -->
+
+</mapper>

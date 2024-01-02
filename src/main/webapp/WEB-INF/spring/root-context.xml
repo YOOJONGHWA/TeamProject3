@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+<!-- 	 Root Context: defines shared resources visible to all other web components --> 
+<!-- 	<bean id="memberController" class="com.itwillbs.controller.StudyController"> -->
+<!-- 		<constructor-arg name="memberService" ref="memberService"></constructor-arg>	생성자 호출  -->
+<!-- 		<property name="memberService" ref="memberService"></property>	set메서드 호출  -->
+<!-- 	</bean> -->
+<!-- 	<bean id="memberService" class="com.itwillbs.service.MemberServiceImpl"> -->
+<!-- 		<constructor-arg name="memberDAO" ref="memberDAO"></constructor-arg> -->
+<!-- 		<property name="memberDAO" ref="memberDAO"></property> -->
+<!-- 	</bean> -->
+<!-- 	<bean id="memberDAO" class="com.itwillbs.dao.MemberDAOImpl"> -->
+<!-- 	</bean> -->
+
+
+		<bean id="dataSource-mysql" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+			<property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property>
+			<property name="url" value="jdbc:mysql://localhost3306/board?serverTimezone=Asia/Seoul"></property>
+			<property name="username" value="root"></property>
+			<property name="password" value="1234"></property>
+		</bean>
+		
+		<!-- EXPORT -->
+<!-- 		<bean id="dataSource-mysql" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> -->
+<!-- 			<property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property> -->
+<!-- 			<property name="url" value="jdbc:mysql://localhost/itwillbs13"></property> -->
+<!-- 			<property name="username" value="itwillbs13"></property> -->
+<!-- 			<property name="password" value="itwillbs8030909"></property> -->
+<!-- 		</bean> -->
+		
+		
+		<!-- DB연결객체생성 -->
+		<bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+			<constructor-arg ref="dataSource-mysql"/>
+			<property name="logFormatter">
+				<bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+					<property name="loggingType" value="MULTI_LINE"/>
+					<property name="sqlPrefix" value="SQL : "/>
+				</bean>
+			</property>		
+		</bean>
+		
+		<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+			<property name="dataSource" ref="dataSource"></property>
+			<property name="configLocation" value="classpath:/mybatis-config.xml"></property>
+			<property name="mapperLocations" value="classpath*:mappers/**/*Mapper.xml"></property>
+		</bean>
+		
+		<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+			<constructor-arg ref="sqlSessionFactory"></constructor-arg>
+		</bean>
+		
+		<!-- 메일 인증 -->
+		
+		<!-- mail설정 -->
+		<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl"> 
+		 <property name="host" value="smtp.naver.com"/> <!-- 메이서버 호스트 -->
+		 <property name="port" value="465"/> <!-- 메이서버 포트번호 -->
+		 <property name="username" value="rudzkcb@naver.com"/> <!-- 자신의 이메일 아이디 -->
+		 <property name="password" value="DKSVTWRZGJ27"/> <!-- 자신의 비밀번호 -->
+		 <property name="defaultEncoding" value="utf-8" />
+		   <!-- 보안연결 SSL과 관련된 설정 -->
+		 <property name="javaMailProperties">
+		  <props>
+<!-- 		  <prop key="mail.transport.protocol">smtp</prop> -->
+		  <prop key="mail.smtp.auth">true</prop>
+		  <prop key="mail.smtp.starttls.enable">true</prop>
+		  <prop key="mail.smtp.ssl.enable">true</prop>
+		  <prop key="mail.smtps.checkserveridentity">true</prop>
+		  <prop key="mail.smtps.ssl.trust">smtp.naver.com</prop>
+		  <prop key="mail.debug">true</prop>
+		  <prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
+		  <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+		  </props>
+		 </property>
+		</bean>
+		<!-- 메일 인증 -->
+		
+		
+		
+</beans>

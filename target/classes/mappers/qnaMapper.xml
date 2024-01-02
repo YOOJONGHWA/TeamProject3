@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.itwillbs.mappers.qnaMapper">
+  
+  <!-- 이클립스 BoradDAO랑 비슷핫거같음 -->
+<insert id="qnaInsert">
+	insert into qna( qna_num
+	                 , qna_name
+		 			 , qna_subject
+ 				 	 , qna_content
+ 				  	 , qna_readcount
+ 					 , qna_date
+	                 , qna_ref
+	                 , qna_lev
+	                 , qna_seq
+	                 , qna_secret
+	                 ) 
+			  values( #{qnaNum}
+			         , #{qnaName}
+			         , #{qnaSubject}
+		  	         , #{qnaContent}
+		             , #{qnaReadcount}
+			         , #{qnaDate}
+			         , #{qnaRef}
+			         , #{qnaLev}
+			         , #{qnaSeq}
+			         , #{qnaSecret}
+			         )
+</insert>
+
+
+<!-- 조회수 기능 -->
+<!-- <update id="updateHitCount"> -->
+<!-- 	update qna  -->
+<!-- 	from qna -->
+<!-- 	where qna_num = #{qnaNum} +1 -->
+<!-- </update> -->
+
+
+<!-- 글이 없을때, 완전 삭제했을때 글추가하면 -->
+<select id="getMaxNum" resultType="java.lang.Integer">
+<!-- 	select ifnull(max(qna_num), 0) + 1 from qna -->
+		select max(qna_num) from qna
+</select>
+ 
+ 
+ <!-- 글번호 원래글과 답글 1씩 올라가게 내림차순으로 -->
+ <select id="getQnaList" resultType="com.itwillbs.domain.QnaDTO">
+<!--    select * from qna  -->
+<!--    order by qna_num desc limit #{qpStartRow} -->
+<!--                                    , #{qpPageSize} -->
+<!--    order by qna_ref desc, qna_seq asc 답글깊이 기준으로 order by변경할것 -->
+
+<!-- 	select * -->
+<!-- 	from qna -->
+<!-- 	order by qna_num desc -->
+<!-- 	select * -->
+<!-- 얘를 바꾸니까 다시 정상작동하네 -->
+
+
+select * 
+from qna 
+       <if test="qpKeyWord != null">
+	   where qna_subject like #{qpKeyWord}
+	   </if>
+order by qna_ref desc
+		 , qna_seq asc limit #{qpStartRow}
+	                          , #{qpPageSize} 
+	                          
+<!-- 
+	select * 
+	from qna
+   	where 1=1 
+    and qna_name = 'wwee' 
+    or (qna_name != 'wwee' and qna_secret = 0)
+  
+	select *  
+	from qna
+   	where 1=1 
+    and qna_name = #{qnaName} 
+    or (qna_name != #{qnaName}  and qna_secret = 0)
+-->   
+ </select>
+ 
+ 
+ <select id="getQnaCount" resultType="java.lang.Integer">
+		select count(*) 
+		from qna
+ </select>
+
+
+<!-- 조회수나 글번호같은 숫자증가 -->
+<update id="updateReadCount">
+		update qna 
+			set qna_readcount = qna_readcount + 1
+		where qna_num = #{qnaNum}
+</update>
+
+
+<select id="getQna" resultType="com.itwillbs.domain.QnaDTO">
+		select *
+		from qna
+		where qna_num = #{qnaNum}
+</select>
+
+
+<!-- 글수정기능 -->
+<update id="qnaUpdate">
+		update qna 
+			set qna_subject = #{qnaSubject}
+		       , qna_content = #{qnaContent} 
+		       , qna_secret = #{qnaSecret} 
+		where qna_num = #{qnaNum}
+</update>
+
+
+<!-- 글 삭제기능 -->
+<delete id="qnaDelete">
+	delete from qna 
+	where qna_num = #{qnaNum}
+</delete>
+
+
+<!-- 답글달기 ㅇㅇ  -->
+<update id="ReQnaUpdateSeq"> 
+		update qna 
+		    set qna_seq = qna_seq + 1
+		where qna_ref = #{qnaRef}
+		and qna_seq > #{qnaSeq}
+</update>
+ 
+ 
+ 
+<!-- 답글 \ㅇ0ㅇ/  ========================================================== -->
+<!--  <insert id="qnaInsert"> -->
+<!--  	insert into qna ( qna_num -->
+<!--   	 				  , qna_name -->
+<!--   	 				  , qna_subject -->
+<!--   	 				  , qna_content -->
+<!--   	 				  , qna_readcount -->
+<!--   	 				  , qna_date -->
+  	 				  
+<!--   	 				  , qna_ref				 -->
+<!--  				      , qna_lev				 -->
+<!--  	 				  , qna_seq				 -->
+<!--  	                  ) -->
+ 	                  
+<!--  			  values ( #{qnaNum} -->
+<!-- 					  , #{qnaName} -->
+<!-- 					  , #{qnaSubject} -->
+<!-- 				  	  , #{qnaContent} -->
+<!-- 				      , #{qnaReadcount} -->
+<!-- 					  , #{qnaDate} -->
+					  
+<!-- 					  , #{qnaRef} -->
+<!-- 					  , 0 -->
+<!-- 					  , 0 -->
+<!-- 					  ) -->
+<!--  </insert> -->
+<!--   <insert id="qnaInsert2"> -->
+<!--  	insert into qna ( qna_num -->
+<!--   	 				  , qna_name -->
+<!--   	 				  , qna_subject -->
+<!--   	 				  , qna_content -->
+<!--   	 				  , qna_readcount -->
+<!--   	 				  , qna_date -->
+  	 				  
+<!--   	 				  , qna_ref				 -->
+<!--  				      , qna_lev				 -->
+<!--  	 				  , qna_seq				 -->
+<!--  	                  ) -->
+ 	                  
+<!--  			  values ( #{qnaNum} -->
+<!-- 					  , #{qnaName} -->
+<!-- 					  , #{qnaSubject} -->
+<!-- 				  	  , #{qnaContent} -->
+<!-- 				      , #{qnaReadcount} -->
+<!-- 					  , #{qnaDate} -->
+					  
+<!-- 					  , #{qnaRef} -->
+<!-- 					  , #{qnaLev} -->
+<!-- 					  , #{qnaSeq} -->
+<!-- 					  ) -->
+<!--  </insert> -->
+ 
+<!-- 답글깊이 기준으로 order by변경할것 -->
+<!--   <select id="getQnaList2" resultType="com.itwillbs.domain.QnaDTO"> -->
+<!--    select * from qna order by qna_ref desc -->
+<!--                                   , qna_seq asc limit #{qpStartRow} -->
+<!-- 		                                               , #{qpPageSize} -->
+<!--  </select> -->
+ 
+ 
+<!--  답글정보조회, 게시글 답글을 동록할 때 부모 게시글에 그룹 번호와 글의 깊이 및 순서를 조회하는 쿼리를 추가해야 합니다. -->
+<!-- <select id="getQna2" resultType="com.itwillbs.domain.QnaDTO"> -->
+<!-- 	SELECT qna_ref -->
+<!--             , qna_lev -->
+<!--             , qna_seq from qna where qna_seq = #{qnaSeq} -->
+<!-- </select>  -->
+ 
+<!--  <update id="updateReadCount2"> -->
+<!-- 	update qna set qna_readcount = qna_readcount+1 where qna_num = #{qnaNum} -->
+<!-- </update> -->
+ 
+
+<!-- 게시글 답글 순서 수정, 게시글 답글을 등록할 때 기존에 등록된 답글의 순서를 증가시키는 쿼리를 추가해야 합니다. -->
+<!-- <delete id="qnaUpdate2"> -->
+<!--     update qna set qna_seq = qna_seq + 1 where qna_ref = #{qnaRef} and qna_seq > #{qnaSeq} -->
+<!-- </delete> -->
+ 
+<!--   <select id="getQnaCount2" resultType="java.lang.Integer"> -->
+<!--  	select count(*) from qna -->
+<!--  </select> -->
+ 
+
+ 
+</mapper>
+
+
+

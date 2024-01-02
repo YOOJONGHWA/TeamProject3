@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.itwillbs.mappers.activityMapper">
+	
+	<select id="getMaxNum" resultType="java.lang.Integer">
+		SELECT MAX(ACT_NUM) 
+		  FROM ACTIVITY
+	</select>
+	
+	<insert id="insertActivity">
+		INSERT 
+		INTO ACTIVITY (
+			  ACT_NUM
+			, ACT_TITLE
+			, COMPANY_NAME
+			, ACT_CONTENT
+			, ACT_PRICE
+			, ACT_PHONE
+			, ACT_LOCATION
+			, ACT_RESERVATION
+			, ACT_PARKING
+			, ACT_CATEGORY
+			, ACT_OPERATION_TIME
+			, ACT_DAYOFF
+		) 
+		VALUES (
+			  #{actNum}
+			, #{actTitle}
+			, #{companyName}
+			, #{actContent}
+			, #{actPrice}
+			, #{actPhone}
+			, #{actLocation}
+			, #{actReservation}
+			, #{actParking}
+			, #{actCategory}
+			, #{actOperationTime}
+   			, #{actDayoff}
+		)
+	</insert>
+	
+	<select id="getActivityList" resultType="com.itwillbs.domain.ActivityDTO">
+		SELECT 
+			   A.ACT_NUM
+			 , A.ACT_TITLE
+			 , A.COMPANY_NAME
+			 , A.ACT_CONTENT
+			 , A.ACT_PRICE
+			 , A.ACT_PHONE
+			 , A.ACT_LOCATION
+			 , A.ACT_RESERVATION
+			 , A.ACT_PARKING
+			 , A.ACT_CATEGORY
+			 , A.ACT_OPERATION_TIME
+			 , A.ACT_DAYOFF
+			 , A.IMG_NAME_KEY
+	  	 FROM (SELECT A.ACT_NUM
+				    , A.ACT_TITLE
+				    , CASE WHEN CHAR_LENGTH(A.COMPANY_NAME) > 5 
+				    	   THEN CONCAT(SUBSTR(A.COMPANY_NAME, 1, 6),'..') 
+				    	   ELSE A.COMPANY_NAME 
+				    	    END "COMPANY_NAME"
+				    , A.ACT_CONTENT
+				    , A.ACT_PRICE
+				    , A.ACT_PHONE
+				    , SUBSTRING_INDEX(SUBSTRING_INDEX(A.ACT_LOCATION,' ',2),' ',-1) "ACT_LOCATION"
+				    , A.ACT_RESERVATION
+				    , A.ACT_PARKING
+				    , A.ACT_CATEGORY
+				    , A.ACT_OPERATION_TIME
+				    , A.ACT_DAYOFF
+				    , AI.IMG_NAME_KEY
+			     FROM ACTIVITY A LEFT JOIN (SELECT 
+												   ACT_NUM
+											     , IMG_NAME_KEY
+										      FROM ACTIVITY_IMAGE
+									      GROUP BY ACT_NUM 
+									      ORDER BY ACT_NUM) AI
+		   		   ON A.ACT_NUM = AI.ACT_NUM) A 
+	    WHERE 1=1         
+	      <if test="scKeyword != null and scKeyword != ''">         
+    	  AND <choose>
+	   	  	  	  <when test="scType eq '체험명'">
+	   	  	  	  	ACT_TITLE
+	   	  	  	  </when>
+	   	  	  	  <when test="scType eq '업체명'">
+	   	  	  	  	COMPANY_NAME
+	   	  	  	  </when>
+    	  	  </choose> LIKE CONCAT('%', #{scKeyword, jdbcType=VARCHAR}, '%')
+    	  </if>
+    	  <if test="scCategory != null and scCategory != ''"> 
+    	  AND ACT_CATEGORY IN
+    	  <foreach collection="scCategory" item="scCategory"  open="(" close=")" separator=",">
+		  	#{scCategory}
+		  </foreach>
+    	  </if>
+    	  <if test="sessionId != null and sessionId != ''">
+	      AND A.ACT_NUM IN (SELECT ACT_NUM
+						   	  FROM (SELECT A.ACT_NUM
+						   	  			 , IFNULL(W.USER_ID,'') 'USER_ID'
+								   	  FROM ACTIVITY A LEFT JOIN WISHLIST W
+									    ON A.ACT_NUM = W.ACT_NUM) A
+						     WHERE USER_ID LIKE CONCAT('%', #{sessionId, jdbcType=VARCHAR}, '%'))
+		  </if>
+		  <if test="scLocation != null and scLocation != ''">
+	      AND A.ACT_LOCATION IN
+	      <foreach collection="scLocation" item="scLocation" open="(" close=")" separator=",">
+			#{scLocation}
+		  </foreach>
+	      </if>
+     ORDER BY ACT_NUM DESC LIMIT #{startRow},#{pageSize};
+	</select>
+	
+	<select id="getActivityCount" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		  FROM ACTIVITY
+	     WHERE 1=1
+	       <if test="scKeyword != null and scKeyword != ''">
+	       AND <choose>
+		    	   <when test="scType eq '체험명'">
+		    	   		ACT_TITLE
+		    	   </when>
+	    	  	   <when test="scType eq '업체명'">
+	   	  	  	   		COMPANY_NAME
+	   	  	  	   </when>
+    	  	   </choose> LIKE CONCAT('%', #{scKeyword, jdbcType=VARCHAR}, '%')
+	       </if>
+   	       <if test="scCategory != null and scCategory != ''"> 
+    	   AND ACT_CATEGORY IN 
+    	   <foreach collection="scCategory" item="scCategory" open="(" close=")" separator=",">
+			#{scCategory}
+		   </foreach>
+    	   </if>
+    	   <if test="sessionId != null and sessionId != ''">
+   	       AND ACT_NUM IN (SELECT ACT_NUM
+					   	     FROM (SELECT A.ACT_NUM, IFNULL(W.USER_ID,'') 'USER_ID'
+							   	     FROM ACTIVITY A LEFT JOIN WISHLIST W
+								 	   ON A.ACT_NUM = W.ACT_NUM) A
+						    WHERE USER_ID LIKE CONCAT('%', #{sessionId, jdbcType=VARCHAR}, '%'))
+		   </if>
+		   <if test="scLocation != null and scLocation != ''">
+	       AND ACT_LOCATION IN (
+	      <foreach collection="scLocation" item="scLocation" separator=",">
+			#{scLocation}
+		  </foreach>
+		  )
+	      </if>
+	</select>
+	
+	<select id="getActivity" resultType="com.itwillbs.domain.ActivityDTO">
+		SELECT 
+			   A.ACT_NUM
+			 , A.ACT_TITLE
+			 , A.COMPANY_NAME
+			 , A.ACT_CONTENT
+			 , A.ACT_PRICE
+			 , A.ACT_PHONE
+			 , A.ACT_LOCATION
+			 , A.ACT_RESERVATION
+			 , A.ACT_PARKING
+			 , A.ACT_CATEGORY
+			 , A.ACT_OPERATION_TIME
+			 , A.ACT_DAYOFF
+		     , AI.IMG_NAME_KEY
+  		  FROM ACTIVITY A LEFT JOIN (SELECT 
+  		  							 	    ACT_NUM
+  		  							  	  , IMG_NAME_KEY
+  		  							   FROM ACTIVITY_IMAGE
+  		  						   GROUP BY ACT_NUM
+  		  						   ORDER BY ACT_NUM) AI
+  		  	ON A.ACT_NUM = AI.ACT_NUM						  
+		 WHERE A.ACT_NUM=#{actNum}
+	</select>
+	
+	<update id="updateActivity">
+		UPDATE ACTIVITY
+		   SET ACT_TITLE=#{actTitle}
+		     , COMPANY_NAME=#{companyName}
+		     , ACT_CONTENT=#{actContent}
+		     , ACT_PRICE=#{actPrice}
+		     , ACT_PHONE=#{actPhone}
+		     , ACT_LOCATION=#{actLocation}
+		     , ACT_RESERVATION=#{actReservation}
+		     , ACT_PARKING=#{actParking}
+		     , ACT_CATEGORY=#{actCategory}
+		     , ACT_OPERATION_TIME=#{actOperationTime}
+		     , ACT_DAYOFF=#{actDayoff}
+		 WHERE ACT_NUM=#{actNum}
+	</update>
+	
+	<delete id="deleteActivity">
+		DELETE 
+		  FROM ACTIVITY
+		 WHERE ACT_NUM=#{actNum}
+	</delete>
+	
+	<select id="getCompanyName" resultType="String">
+		SELECT COMPANY_NAME
+		  FROM COMPANY_INFO
+	     WHERE COMPANY_ID=#{companyId}
+	</select>
+	
+	<select id="getActivityLocation" resultType="com.itwillbs.domain.ActivityDTO">
+		SELECT CA.AREA "ACT_LOCATION", IFNULL(ACT_LOCATION_COUNT, 0) "ACT_LOCATION_COUNT"
+  		  FROM(SELECT ACT_LOCATION, COUNT(ACT_LOCATION) "ACT_LOCATION_COUNT"
+		 		 FROM (SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(ACT_LOCATION,' ',2),' ',-1) "ACT_LOCATION"
+				 		 FROM ACTIVITY) A
+				     GROUP BY ACT_LOCATION) A
+	RIGHT JOIN COMMON_AREA CA
+    		ON A.ACT_LOCATION = CA.AREA;
+	</select>
+	
+	<select id="getCompanyMember" resultType="String">
+		SELECT COMPANY_ID
+		  FROM COMPANY_INFO
+	</select>
+</mapper>

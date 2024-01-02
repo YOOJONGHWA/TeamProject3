@@ -1,0 +1,40 @@
+@charset "UTF-8";
+
+.table tbody tr td{
+	padding: 10px 10px;
+}
+
+.left-box {
+	float: left;
+	height: 50px;
+	width: 60%;
+	font-size: 2em;
+	color: #000; 
+	font-weight: bold;
+}
+.right-box {
+
+	text-align: right;
+}
+
+hr{
+	background-color: #000;
+	margin-top: 0.7em;
+	height: 1px;
+}
+
+.form-select{
+	padding: 0.5em;
+	width: 33%
+}
+
+.txt-a {
+	padding: 0.5em; 
+	width: 99.7%; 
+	resize: none;
+}
+
+.c-sub {
+	width: 99.7%;
+	padding: 0.5em;
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itwillbs.mappers.scheduleMapper">
+
+<insert id="scheduleAdd">
+insert into schedule
+(scheduleNum, scheduleSubject , scheduleDesc, scheduleDate)
+values ( #{scheduleNum}, #{scheduleSubject}, #{scheduleDesc}, #{scheduleDate})
+</insert>
+
+<!-- <sql id="schedule_cols"> (scheduleIdx, scheduleNum, scheduleSubject, schedule_desc, schedule_date) </sql> -->
+
+<select id="beforeScheduleAddSearch" resultType="int"> 
+select count(*) 
+from schedule 
+where scheduleDate = #{scheduleDate} 
+</select>
+
+<select id="scheduleList" resultType="com.itwillbs.domain.ScheduleDTO">
+select * 
+from schedule 
+where scheduleDate >= #{dbStartDate} and  #{dbEndDate} >= scheduleDate
+order by scheduleDate, scheduleNum, scheduleIdx 
+
+</select>
+
+</mapper>
+

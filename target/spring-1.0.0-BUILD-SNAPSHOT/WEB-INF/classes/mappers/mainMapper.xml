@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.itwillbs.mappers.mainMapper">
+
+	<!-- main content List -->
+	<select id="getMainContentList" resultType="com.itwillbs.domain.ActivityDTO">
+		SELECT 
+			   AVG(REVIEW_SCORE) SCORE
+		     , R.ACT_NUM
+		     , A.ACT_TITLE
+		     , CASE WHEN CHAR_LENGTH(A.COMPANY_NAME) > 5 
+		      		THEN CONCAT(SUBSTR(A.COMPANY_NAME, 1, 6),'..') 
+		      		ELSE A.COMPANY_NAME 
+		      		 END "COMPANY_NAME"
+		     , A.ACT_CONTENT
+		     , A.ACT_PRICE
+		     , A.ACT_PHONE
+		     , SUBSTRING_INDEX(SUBSTRING_INDEX(A.ACT_LOCATION,' ',2),' ',-1) "ACT_LOCATION"
+		     , A.ACT_RESERVATION
+		     , A.ACT_PARKING
+		     , A.ACT_CATEGORY
+		     , A.ACT_OPERATION_TIME
+		     , A.ACT_DAYOFF
+		     , AI.IMG_NAME_KEY
+		  FROM REVIEW_BOARD R JOIN ACTIVITY A
+		    ON R.ACT_NUM = A.ACT_NUM
+		  JOIN (SELECT 
+		               ACT_NUM
+		             , IMG_NAME_KEY
+		          FROM ACTIVITY_IMAGE
+		      GROUP BY ACT_NUM 
+		      ORDER BY ACT_NUM) AI 
+		    ON A.ACT_NUM = AI.ACT_NUM 
+	  GROUP BY R.ACT_NUM
+	  ORDER BY SCORE DESC;
+	</select>
+  <!-- main content List -->
+	
+	<select id="getMainInterestList" resultType="com.itwillbs.domain.ActivityDTO">
+		SELECT 
+			   A.ACT_NUM
+			 , A.ACT_TITLE
+			 , CASE WHEN CHAR_LENGTH(A.COMPANY_NAME) > 5 
+			 		THEN CONCAT(SUBSTR(A.COMPANY_NAME, 1, 6),'..') 
+			 		ELSE A.COMPANY_NAME 
+			 		 END "COMPANY_NAME"
+			 , A.ACT_CONTENT
+			 , A.ACT_PRICE
+			 , A.ACT_PHONE
+			 , SUBSTRING_INDEX(SUBSTRING_INDEX(A.ACT_LOCATION,' ',2),' ',-1) "ACT_LOCATION"
+			 , A.ACT_RESERVATION
+			 , A.ACT_PARKING
+			 , A.ACT_CATEGORY
+			 , A.ACT_OPERATION_TIME
+			 , A.ACT_DAYOFF
+			 , AI.IMG_NAME_KEY
+		  FROM ACTIVITY A JOIN (SELECT 
+							   		   ACT_NUM
+							 		 , IMG_NAME_KEY
+						  		  FROM ACTIVITY_IMAGE
+					  		  GROUP BY ACT_NUM 
+					  		  ORDER BY ACT_NUM) AI 
+			ON A.ACT_NUM = AI.ACT_NUM
+ 		 WHERE ACT_CATEGORY IN (SELECT CATEGORY
+						  		  FROM USER_INTEREST
+						 		 WHERE USER_ID = #{userId});
+	</select>
+  
+  	<select id="getMainAreaList" resultType="com.itwillbs.domain.ActivityDTO">
+		SELECT *
+  		  FROM (SELECT 
+					   A.ACT_NUM
+					 , A.ACT_TITLE
+					 , CASE WHEN CHAR_LENGTH(A.COMPANY_NAME) > 5 
+							THEN CONCAT(SUBSTR(A.COMPANY_NAME, 1, 6),'..') 
+							ELSE A.COMPANY_NAME 
+							 END "COMPANY_NAME"
+					 , A.ACT_CONTENT
+					 , A.ACT_PRICE
+					 , A.ACT_PHONE
+					 , SUBSTRING_INDEX(SUBSTRING_INDEX(A.ACT_LOCATION,' ',2),' ',-1) "ACT_LOCATION"
+					 , A.ACT_RESERVATION
+					 , A.ACT_PARKING
+					 , A.ACT_CATEGORY
+					 , A.ACT_OPERATION_TIME
+					 , A.ACT_DAYOFF
+					 , AI.IMG_NAME_KEY
+				  FROM ACTIVITY A JOIN (SELECT 
+											   ACT_NUM
+											 , IMG_NAME_KEY
+										  FROM ACTIVITY_IMAGE
+									  GROUP BY ACT_NUM 
+									  ORDER BY ACT_NUM) AI 
+					ON A.ACT_NUM = AI.ACT_NUM) A 
+		 WHERE A.ACT_LOCATION IN (SELECT AREA
+								    FROM INTEREST_AREA
+								   WHERE USER_ID = #{userId});
+	</select>
+
+</mapper>

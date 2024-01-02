@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itwillbs.mappers.photoReplyMapper">
+
+	<insert id="insertReply">
+		INSERT INTO photo_reply (pr_num
+							  , photo_num
+							  , user_id
+							  , pr_content
+							  , pr_date
+							  , pr_parent
+							  , pr_depth
+							  , pr_order
+							 ) 
+						 VALUES (#{prNum}
+							  , #{photoNum}
+							  , #{userId}
+							  , #{prContent}
+							  , #{prDate}
+							  , #{prParent}
+							  , #{prDepth}
+							  , #{prOrder}
+							  )
+	</insert>
+
+	<update id="updateAddOrder">
+		UPDATE photo_reply
+		   SET pr_order = pr_order + 1
+		 WHERE pr_num = #{prNum}
+	</update>
+	
+	<update id="updateSubOrder">
+		UPDATE photo_reply
+		   SET pr_order = pr_order - 1
+		 WHERE pr_num = #{prNum}
+	</update>
+
+	<select id="getMaxNum" resultType="java.lang.Integer">
+		SELECT max(pr_num)
+		  FROM photo_reply
+	</select>
+	
+	<select id="getReplyList" resultType="com.itwillbs.domain.PhotoReplyDTO">
+		WITH RECURSIVE cte AS 
+			(SELECT pr_num
+				  , photo_num
+				  , user_id
+				  , pr_content
+				  , pr_date
+				  , pr_parent
+				  , pr_depth
+				  , pr_order
+				  , @rn:=(@rn+1) AS pnum
+		       FROM (SELECT *
+				   	   FROM photo_reply
+				      ORDER BY pr_num ASC) t1,
+				    (SELECT @rn:=0) t2
+					  WHERE pr_parent = 0
+                        AND photo_num = #{photoNum}
+		UNION ALL
+			SELECT ph.pr_num
+				 , ph.photo_num
+				 , concat(' ㄴ ', ph.user_id)
+				 , ph.pr_content AS content
+				 , ph.pr_date
+				 , ph.pr_parent
+			     , ph.pr_depth
+   				 , ph.pr_order
+				 , p.pnum AS pnum 
+			  FROM photo_reply ph INNER JOIN cte p
+				ON p.pr_num = ph.pr_parent)
+			SELECT *
+			  FROM cte ORDER BY pnum, pr_depth
+<!-- 			  limit #{startRow}, #{pageSize} -->
+	</select>
+	
+	<!-- 페이징된 리스트,, 안 쓸 듯,,, -->
+	<select id="getReplyListTest" resultType="com.itwillbs.domain.PhotoReplyDTO">
+		WITH RECURSIVE cte AS 
+			(SELECT pr_num
+				  , photo_num
+				  , user_id
+				  , pr_content
+				  , pr_date
+				  , pr_parent
+				  , pr_depth
+				  , pr_order
+				  , @rn:=(@rn+1) AS pnum
+		       FROM (SELECT *
+				   	   FROM photo_reply
+				      ORDER BY pr_num ASC) t1,
+				    (SELECT @rn:=0) t2
+					  WHERE pr_parent = 0
+                        AND photo_num = #{photoNum}
+		UNION ALL
+			SELECT ph.pr_num
+				 , ph.prew_num
+				 , concat(' ㄴ ', ph.user_id)
+				 , ph.pr_content AS content
+				 , ph.pr_date
+				 , ph.pr_parent
+			     , ph.pr_depth
+   				 , ph.pr_order
+				 , p.pnum AS pnum 
+			  FROM photo_reply ph INNER JOIN cte p
+				ON p.pr_num = ph.pr_parent)
+			SELECT *
+			  FROM cte ORDER BY pnum, pr_depth limit #{startRow}, #{pageSize}
+	</select>
+	
+	<select id="getReply" resultType="com.itwillbs.domain.PhotoReplyDTO">
+		SELECT *
+		  FROM photo_reply
+		 WHERE pr_num = #{prNum}
+	</select>
+	
+	<select id="getReplyCount" resultType="java.lang.Integer">
+		SELECT count(*)
+		  FROM photo_reply
+		 WHERE photo_num = #{photoNum}
+	</select>
+	
+	<update id="updateReply">
+		UPDATE photo_reply
+		   SET pr_content = #{prContent}
+		 WHERE pr_num = #{prNum}
+	</update>
+	
+	<!-- 자식이 없는 부모 댓글 or 부모 댓글 삭제 -->
+	<delete id="deleteReply">
+		DELETE FROM photo_reply
+		 WHERE pr_num = #{prNum}
+	</delete>
+	
+	<!-- 자식이 있는 부모 댓글 prContent update-->
+	<update id="tmpDeleteReply">
+		UPDATE photo_reply
+		   SET pr_content = ""
+		 WHERE pr_num = #{prNum}
+	</update>
+	
+
+</mapper>

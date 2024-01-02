@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.itwillbs.mappers.ReviewMapper">
+  
+  <insert id="insertReview" parameterType="com.itwillbs.domain.ReviewDTO">
+  	insert into review_board
+  	       ( review_Num
+  	        ,user_id
+  	        ,review_Score
+  	        ,review_title
+  	        ,review_Context
+<!--   	        ,review_File -->
+  	        ,review_Date
+  	        ,act_Num
+  	        ,readcount
+  	        ,act_category)  
+  	values ( #{reviewNum}
+  			,#{userId}
+  		    ,#{reviewScore}
+  		    ,#{reviewTitle}
+  		    ,#{reviewContext}
+<!--   		    ,#{reviewFile} -->
+  		    ,#{reviewDate}
+  		    ,#{actNum}
+  		    ,#{readcount}
+  		    ,#{actCategory})
+  		
+  </insert>
+  
+  <select id="getMaxNum" resultType="java.lang.Integer">
+    select max(review_Num) 
+      from review_board
+  </select>
+ 
+  <select id="getReviewList" resultType="com.itwillbs.domain.ReviewDTO">
+        
+select r.review_num
+	 , r.user_id
+     , r.review_score
+     , r.review_title
+     , r.review_context
+     , r.review_date
+     , r.act_num
+     , r.readcount
+     , i.img_name_key
+     , a.act_category
+  from REVIEW_BOARD r join (SELECT 
+									ACT_NUM
+								  , IMG_NAME_KEY
+							   FROM ACTIVITY_IMAGE
+						   GROUP BY ACT_NUM 
+						   ORDER BY ACT_NUM) i
+    on r.act_num = i.act_num
+  join activity a
+    on i.act_num = a.act_num
+ WHERE 1=1
+<if test="actNum != 0"> 
+   AND r.ACT_NUM = ${actNum}
+</if>
+ order by review_Num desc limit #{startRow},#{pageSize}
+        
+
+<!--     select *  -->
+<!--          , CONCAT('star', review_Score, '.png') as src  -->
+<!--       from review_boards  -->
+<!--      order by review_Num desc limit #{startRow},#{pageSize} -->
+  </select>
+  
+  <select id="getReviewCount" resultType="java.lang.Integer">
+  	select count(*) 
+  	  from review_board
+  </select>
+  
+  <select id="getReview" resultType="com.itwillbs.domain.ReviewDTO">
+  	select * 
+  	  from review_board
+  	 where review_Num= #{reviewNum}
+  </select>
+  
+ <update id="updateReview">
+	update review_board 
+		   set review_Title = #{reviewTitle} 
+			 , review_Context = #{reviewContext}
+			 , review_Score = #{reviewScore} 
+	    where review_Num= #{reviewNum}
+ </update>
+ 	
+ <delete id="deleteReview">
+ 	delete 
+ 	  from review_board 
+ 	 where review_Num=#{reviewNum}
+ </delete>
+ 
+   <update id="updateReadcount">
+  	update review_board set readcount=readcount+1 where review_Num=#{reviewNum}
+  </update>
+ 
+ 
+	 <insert id="insertBoard">
+<!--   	insert into board(num,name,subject,content,readcount,date,file)  -->
+<!--   	values(#{num},#{name},#{subject},#{content},#{readcount},#{date},#{file}) -->
+  	
+  	
+  	insert into review_reply
+  	       ( review_Num
+  	        ,reply_num
+  	        ,user_id
+  	        ,reply_content
+  	        ,readcount
+  	        ,reply_date
+  	        ,reply_re_ref
+  	        ,reply_re_seq
+  	        ,reply_re_lev) 
+  	values ( #{reviewNum}
+  	        ,#{replyNum}
+  	        ,#{userId}
+  	        ,#{replyContent}
+  	        ,#{readcount}
+  	        ,#{replyDate}
+  	        ,#{replyReRef}
+  	        ,#{replyReSeq}
+  	        ,#{replyReLev})
+  	
+  </insert>
+  <select id="regetMaxNum" resultType="java.lang.Integer">
+<!--     select max(num) from board -->
+
+		select max(reply_num) from review_reply
+  </select>
+ 
+  <select id="getBoardList" resultType="com.itwillbs.domain.ReplyDTO">
+<!--     select * from board order by num desc limit #{startRow},#{pageSize} -->
+    	
+    	select * 
+		  from review_reply
+         where review_Num = #{review_Num}
+		 order by reply_re_ref desc, reply_re_seq asc limit #{startRow},#{pageSize}
+
+
+
+<!-- 		select *  -->
+<!-- 		  from reboard -->
+<!-- 		 order by re_ref desc, re_seq asc limit #{startRow},#{pageSize} -->
+  </select>
+  
+  <select id="getBoardCount" resultType="java.lang.Integer">
+<!--   	select count(*) from board -->
+
+		select count(*) from review_reply
+  </select>
+  
+  
+  <select id="getBoard" resultType="com.itwillbs.domain.ReplyDTO">
+<!--  	 select * from board where num=#{num} -->
+
+		select * from review_reply where reply_num=#{replyNum}
+  </select>
+
+  <update id="updateBoard">
+  	update review_reply 
+  	set reply_content=#{replyContent}
+  	where reply_num=#{replyNum}
+  </update>
+  
+  <delete id="deleteBoard">
+   delete from review_reply
+  	where reply_num= #{replyNum} and review_Num =#{reviewNum}
+  </delete>
+  
+   <update id="updateReSeq">
+  	update review_reply 
+  	   set reply_re_seq = reply_re_seq + 1
+  	 where reply_re_ref = #{replyReRef} and reply_re_seq > #{replyReSeq}
+  </update>
+	
+</mapper>
+

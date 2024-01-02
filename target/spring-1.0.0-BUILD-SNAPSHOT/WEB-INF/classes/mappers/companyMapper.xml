@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.itwillbs.mappers.companyMapper">
+
+	<!-- company table  --> 
+	<insert id="companyInsertMember">
+	insert into COMPANY_INFO(
+		COMPANY_ID
+	   ,COMPANY_PASS
+	   ,COMPANY_NAME
+	   ,COMPANY_EMAIL
+	   ,COMPANY_TEL
+	   ,COMPANY_ADDRESS
+	   ,COMPANY_NUM)
+	values(
+		#{companyId}
+	   ,#{companyPass}
+	   ,#{companyName}
+	   ,#{companyEmail}
+	   ,#{companyTel}
+	   ,#{companyAddress}
+	   ,#{companyNum})
+	</insert>
+	
+	<select id="companyUserCheck" resultType="com.itwillbs.domain.CompanyDTO">
+	 	select
+	 	 COMPANY_ID as companyId
+	    ,COMPANY_PASS as companyPass
+	    ,COMPANY_NAME as companyName
+	    ,COMPANY_EMAIL as companyEmail
+	    ,COMPANY_TEL as companyTel
+	    ,COMPANY_ADDRESS as companyAddress
+	    ,COMPANY_NUM as companyNum
+	 	from COMPANY_INFO 
+	 	where COMPANY_ID = #{companyId} 
+	 	and COMPANY_PASS = #{companyPass}
+	</select>
+	
+	<select id="companyIdCheck" resultType="com.itwillbs.domain.CompanyDTO">
+	 	select
+	 	 COMPANY_ID as companyId
+	    ,COMPANY_PASS as companyPass
+	    ,COMPANY_NAME as companyName
+	    ,COMPANY_EMAIL as companyEmail
+	    ,COMPANY_TEL as companyTel
+	    ,COMPANY_ADDRESS as companyAddress
+	    ,COMPANY_NUM as companyNum
+	 	from COMPANY_INFO 
+	 	where COMPANY_ID = #{companyId} 
+	</select>
+	
+	<select id="companyGetMember" resultType="com.itwillbs.domain.CompanyDTO">
+		select
+	 	 COMPANY_ID as companyId
+	    ,COMPANY_PASS as companyPass
+	    ,COMPANY_NAME as companyName
+	    ,COMPANY_EMAIL as companyEmail
+	    ,COMPANY_TEL as companyTel
+	    ,COMPANY_ADDRESS as companyAddress
+	    ,COMPANY_NUM as companyNum
+	 	from COMPANY_INFO 
+	 	where COMPANY_ID = #{companyId} 
+    </select>
+    
+    <select id="companyNumCheck" resultType="com.itwillbs.domain.CompanyDTO">
+	 	select
+	 	 COMPANY_ID as companyId
+	    ,COMPANY_PASS as companyPass
+	    ,COMPANY_NAME as companyName
+	    ,COMPANY_EMAIL as companyEmail
+	    ,COMPANY_TEL as companyTel
+	    ,COMPANY_ADDRESS as companyAddress
+	    ,COMPANY_NUM as companyNum
+	 	from COMPANY_INFO 
+	 	where COMPANY_NUM = #{companyNum} 
+	</select>
+	
+	<select id="companyGetMemberNum" resultType="com.itwillbs.domain.CompanyDTO">
+		select
+	 	 COMPANY_ID as companyId
+	    ,COMPANY_PASS as companyPass
+	    ,COMPANY_NAME as companyName
+	    ,COMPANY_EMAIL as companyEmail
+	    ,COMPANY_TEL as companyTel
+	    ,COMPANY_ADDRESS as companyAddress
+	    ,COMPANY_NUM as companyNum
+	 	from COMPANY_INFO 
+	 	where COMPANY_NUM = #{companyNum} 
+   </select>
+	<!-- company table  --> 
+	
+	<!-- admin -->
+	<select id="getCompanyList" resultType="com.itwillbs.domain.CompanyDTO">
+    	select
+	 	 COMPANY_ID as companyId
+	    ,COMPANY_PASS as companyPass
+	    ,COMPANY_NAME as companyName
+	    ,COMPANY_EMAIL as companyEmail
+	    ,COMPANY_TEL as companyTel
+	    ,COMPANY_ADDRESS as companyAddress
+	    ,COMPANY_NUM as companyNum
+	 	from COMPANY_INFO
+    	order by companyId 
+    	desc limit #{startRow}, #{pageSize}
+ 	 </select>
+  
+  	<select id="getCompanyCount" resultType="java.lang.Integer">
+  		select count(*) 
+  		from COMPANY_ID
+  	</select>
+  	
+ 	<delete id="companyDeleteMember">
+	 	delete 
+	 	from COMPANY_INFO 
+	 	where COMPANY_ID = #{companyId}
+  	</delete>
+  	<!-- admin -->
+
+</mapper>

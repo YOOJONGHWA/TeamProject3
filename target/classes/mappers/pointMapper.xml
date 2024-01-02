@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itwillbs.mappers.pointMapper">
+
+	<insert id="insertMember">
+				insert into point(
+				  point_num
+				, user_id
+				, point_used
+				, point_date
+				, point_balance
+				, point_type
+				) 
+			values(
+			      #{pointNum}
+				, #{userId}
+				, #{pointUsed}
+				, #{pointDate}
+				, #{userBalance}
+				, #{pointType}
+				)
+		</insert>
+	
+		<!-- point_num 조회 -->
+		<select id="getMaxNum" resultType="java.lang.Integer">
+			select max(point_num) from point
+		</select>
+	
+		<!-- 포인트 회원정보 가져오기 -->
+		<select id="getMember" resultType="com.itwillbs.domain.PointDTO">
+			select *from point
+			 where user_id = #{userId}
+			 order by point_num desc limit 1
+		</select>
+	
+	<!-- 포인트(아이디) 수 조회 -->
+		<select id="getPointCount" resultType="java.lang.Integer">
+			select count(*)
+			 from point
+	   		 where user_id = #{userId}
+		</select>
+	
+		<!-- 포인트 날짜 조회 -->
+		<select id="getPointCheckList" resultType="com.itwillbs.domain.PointDTO">
+			select * from point
+	 		 where user_id = #{userId}
+	 		  and date_format(point_date, '%Y-%m-%d') between #{startDate} and #{endDate}
+		  	  order by point_date desc limit #{startRow}, #{pageSize}
+		</select>
+	
+	</mapper>

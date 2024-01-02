@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itwillbs.mappers.memberMapper">
+
+	<!-- user table -->
+	<insert id="userInsertMember">
+		insert into USER_INFO(
+		USER_ID
+		,USER_PASS
+		,USER_NAME
+		,USER_BIRTH
+		,USER_GENDER
+		,USER_EMAIL
+		,USER_PHONE
+		,USER_ADDRESS
+		,USER_AREA
+		,USER_POINT)
+		values(
+		#{userId}
+		,#{userPass}
+		,#{userName}
+		,#{userBirth}
+		,#{userGender}
+		,#{userEmail}
+		,#{userPhone}
+		,#{userAddress}
+		,#{userArea}
+		,#{userPoint})
+	</insert>
+
+	<select id="userCheck"
+		resultType="com.itwillbs.domain.MemberDTO">
+		select
+		USER_ID as userId
+		,USER_PASS as userPass
+		,USER_NAME as userName
+		,USER_BIRTH as userBirth
+		,USER_GENDER as userGender
+		,USER_EMAIL as userEmail
+		,USER_PHONE as userPhone
+		,USER_ADDRESS as userAddress
+		,USER_AREA as userArea
+		from USER_INFO
+		where USER_ID = #{userId}
+		and USER_PASS = #{userPass}
+	</select>
+
+	<select id="userIdCheck"
+		resultType="com.itwillbs.domain.MemberDTO">
+		select
+		USER_ID as userId
+		,USER_PASS as userPass
+		,USER_NAME as userName
+		,USER_BIRTH as userBirth
+		,USER_GENDER as userGender
+		,USER_EMAIL as userEmail
+		,USER_PHONE as userPhone
+		,USER_ADDRESS as userAddress
+		,USER_AREA as userArea
+		from USER_INFO
+		where USER_ID = #{userId}
+	</select>
+
+	<select id="userGetMember"
+		resultType="com.itwillbs.domain.MemberDTO">
+		select
+		USER_ID as userId
+		,USER_PASS as userPass
+		,USER_NAME as userName
+		,USER_BIRTH as userBirth
+		,USER_GENDER as userGender
+		,USER_EMAIL as userEmail
+		,USER_PHONE as userPhone
+		,USER_ADDRESS as userAddress
+		,USER_AREA as userArea
+		from USER_INFO
+		where USER_ID = #{userId}
+	</select>
+
+	<select id="userEmailCheck"
+		resultType="com.itwillbs.domain.MemberDTO">
+		select
+		USER_ID as userId
+		,USER_PASS as userPass
+		,USER_NAME as userName
+		,USER_BIRTH as userBirth
+		,USER_GENDER as userGender
+		,USER_EMAIL as userEmail
+		,USER_PHONE as userPhone
+		,USER_ADDRESS as userAddress
+		,USER_AREA as userArea
+		from USER_INFO
+		where USER_EMAIL = #{userEmail}
+	</select>
+
+	<select id="userGetMemberEmail"
+		resultType="com.itwillbs.domain.MemberDTO">
+		select
+		USER_ID as userId
+		,USER_PASS as userPass
+		,USER_NAME as userName
+		,USER_BIRTH as userBirth
+		,USER_GENDER as userGender
+		,USER_EMAIL as userEmail
+		,USER_PHONE as userPhone
+		,USER_ADDRESS as userAddress
+		,USER_AREA as userArea
+		from USER_INFO
+		where USER_EMAIL = #{userEmail}
+	</select>
+	<!-- user table -->
+
+	<!-- admin -->
+	<select id="getMemberList"
+		resultType="com.itwillbs.domain.MemberDTO">
+		select
+		USER_ID as userId
+		,USER_PASS as userPass
+		,USER_NAME as userName
+		,USER_BIRTH as userBirth
+		,USER_GENDER as userGender
+		,USER_EMAIL as userEmail
+		,USER_PHONE as userPhone
+		,USER_ADDRESS as userAddress
+		,USER_AREA as userArea
+		from USER_INFO
+		order by userId
+		desc limit #{startRow}, #{pageSize}
+	</select>
+
+	<select id="getMemberCount" resultType="java.lang.Integer">
+		select count(*)
+		from USER_INFO
+	</select>
+
+	<delete id="userDeleteMember">
+		delete
+		from USER_INFO
+		where USER_ID = #{userId}
+	</delete>
+	<!-- admin -->
+	<!-- mypage -->
+
+	<select id="getMember"
+		resultType="com.itwillbs.domain.MemberDTO">
+		select * from user_info
+		where user_id =#{userId}
+	</select>
+
+	<!-- 회원수정 -->
+	<update id="updateMember"
+		parameterType="com.itwillbs.domain.MemberDTO">
+
+		update user_info
+		set
+		user_id = #{userId}
+		, user_pass = #{userPass}
+		, user_name = #{userName}
+		,
+		user_birth = #{userBirth}
+		, user_gender = #{userGender}
+		, user_email =
+		#{userEmail}
+		, user_phone = #{userPhone}
+		, user_address= #{userAddress}
+		, user_area = #{userArea}
+		where user_id =
+		#{userId}
+	</update>
+
+	<!-- 회원탈퇴 -->
+	<delete id="deleteMember">
+		delete from user_info
+		where user_id = #{userId}
+	</delete>
+
+	<!-- 나의 리뷰 조회 -->
+	<select id="getReviewList"
+		resultType="com.itwillbs.domain.MemberDTO">
+		select *
+		from review_board
+		order by user_id
+		desc limit #{startRow}, #{pageSize}
+	</select>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.itwillbs.mappers.userInterestAreaMapper">
+
+	<insert id="insertAreaActImg" parameterType="com.itwillbs.domain.InterestAreaDTO">
+        INSERT INTO INTEREST_AREA
+        (
+              USER_ID
+            , AREA
+        )
+        VALUES
+        (
+              #{userId}
+            , #{area}
+        )    
+    </insert>
+    
+    <select id="getUserInterestArea" resultType="com.itwillbs.domain.InterestAreaDTO">
+    	SELECT
+			   USER_ID
+			 , AREA
+		  FROM INTEREST_AREA
+		 WHERE USER_ID = #{userId}
+    </select>
+	
+	
+	<delete id="deleteUserInterestArea">
+		DELETE 
+		  FROM INTEREST_AREA
+		 WHERE USER_ID = #{userId}
+	</delete>
+	
+</mapper>
